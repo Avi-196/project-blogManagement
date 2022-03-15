@@ -38,7 +38,7 @@ const getBlogs=async function(req,res){
      let authorId=req.query.authorId
      let category=req.query.category
      let tags=req.query.tags
-     let subcategory=req.query.tags
+     let subcategory=req.query.subcategory
      let blogs=await BlogModel.find({$or:[{authorId:authorId},{category:category},{tags:tags},{subcategory:subcategory}]})
       
      if(blogs.length>0){
@@ -111,8 +111,44 @@ const BlogDeleted = async function (req, res) {
 
     }
     catch (err) { res.status(500).send({status:false, message:err.message }) }
+
+}
+
+
+const deleteByQuery = async (request, response)=>{
+    try {
+        const data = request.query; 
+        const fetchData = await BlogModel.find(data);
+        if(fetchData.length == 0){
+            return response.status(404).send({
+                status: false,
+                msg: 'Blog not found !'
+            });
+        }
+        for(let i = 0; i < fetchData.length; i++){
+            if(fetchData[i].isDeleted){
+                const dataRes = await BlogModel.updateMany(data, { isDeleted: true }); 
+                return response.status(200).send({
+                    status: true,
+                    msg: dataRes
+                }); 
+
+            }
+
+                return response.status(404).send({
+                    status: false,
+                    msg: 'Blog not found !'
+                }); 
+            }
+        
+    } catch (error) {
+        return response.status(500).send({
+            'Error: ': error.message
+        });
+    }
 }
 module.exports.createBlogs=createBlogs
 module.exports.getBlogs=getBlogs
 module.exports.updatedBlog=updatedBlog
 module.exports.BlogDeleted=BlogDeleted
+module.exports.deleteByQuery=deleteByQuery
