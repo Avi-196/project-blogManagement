@@ -35,7 +35,7 @@ let authorLogin=async function (req,res){
         "project-blog"
         
         );
-        res.setHeader('x-auth-token',tokenGen)
+        res.header('x-api-key',tokenGen)
         res.status(201).send({data:tokenGen,status:true})
 
 
