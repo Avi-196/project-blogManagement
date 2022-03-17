@@ -123,89 +123,89 @@ const BlogDeleted = async function (req, res) {
 
 }
 
-const deleteByQuery = async function (req, res)  {
-    try {
-      const data = req.query;
-      const fetchData = await BlogModel.find(data);
+// const deleteByQuery = async function (req, res)  {
+//     try {
+//       const data = req.query;
+//       const fetchData = await BlogModel.find(data);
     
   
-      console.log(fetchData.authorId)
-      console.log(data.authorId)
+//       console.log(fetchData.authorId)
+//       console.log(data.authorId)
   
-      if(req.user!=data.authorId){
-        return res.status(400).send("You are not authorized")
-      }
-      if (!fetchData.length) {
-        return res.status(404).send({
-          status: false,
-          msg: "Blog not found!",
-        });
-      }
-      for (let i = 0; i < fetchData.length; i++) {
-        if (!fetchData[i].isDeleted) {
-          const dataRes = await BlogModel.updateMany(data, { isDeleted: true });
-          res.status(200).send({ status: true, msg: dataRes });
-        }
-        return res.status(404).send({
-          status: false,
-          msg: "Blog not found !",
-        });
-      }
-    } catch (error) {
-      return res.status(500).send({
-        "Error: ": error.message,
-      });
-    }
-  };
-
-
-
-
-
-
-
-
-
-
-// const deleteByQuery = async function (req, res) {
-//     try {
-//       if (Object.keys(req.query).length === 0) {
-//         return res.status(400).send({ status: false, msg: 'give right condition' });
+//       if(req.user!=data.authorId){
+//         return res.status(400).send("You are not authorized")
 //       }
+//       if (!fetchData.length) {
+//         return res.status(404).send({
+//           status: false,
+//           msg: "Blog not found!",
+//         });
+//       }
+//       for (let i = 0; i < fetchData.length; i++) {
+//         if (!fetchData[i].isDeleted) {
+//           const dataRes = await BlogModel.updateMany(data, { isDeleted: true });
+//           res.status(200).send({ status: true, msg: dataRes });
+//         }
+//         return res.status(404).send({
+//           status: false,
+//           msg: "Blog not found !",
+//         });
+//       }
+//     } catch (error) {
+//       return res.status(500).send({
+//         "Error: ": error.message,
+//       });
+//     }
+//   };
+
+
+
+
+
+
+
+
+
+
+const deleteByQuery = async function (req, res) {
+    try {
+      if (Object.keys(req.query).length === 0) {
+        return res.status(400).send({ status: false, msg: 'give right condition' });
+      }
   
      
   
-//       let searchFilter = { authorId: req.body.decodetoken }
-//       console.log(searchFilter)
+      let searchFilter = { authorId: req.body.decodetoken }
+      console.log(searchFilter)
   
-//       if (req.query.authorId) {
-//         searchFilter.authorId = req.query.authorId
-//       }
+      if (req.query.authorId) {
+        searchFilter.authorId = req.query.authorId
+      }
   
-//       if (req.query.tags) {
-//         searchFilter.tags = req.query.tags
-//       }
+      if (req.query.tags) {
+        searchFilter.tags = req.query.tags
+      }
   
-//       if (req.query.subcategory) {
-//         searchFilter.subcategory = req.query.subcategory
-//       }
+      if (req.query.subcategory) {
+        searchFilter.subcategory = req.query.subcategory
+      }
   
-//       if (req.query.isPublished) {
-//         searchFilter.isPublished = req.query.isPublished
-//       }
+      if (req.query.isPublished) {
+        searchFilter.isPublished = req.query.isPublished
+      }
   
-//       let check = await BlogModel.find(searchFilter);
-//       if (!check) {
-//         res.status(400).send({ status: false, msg: "you are not authorised" });
-//       }
+      let check = await BlogModel.find(searchFilter);
+      if (!check) {
+        res.status(400).send({ status: false, msg: "you are not authorised" });
+      }
   
-//       let deleteBlog = await BlogModel.updateMany(searchFilter, { isDeleted: true, deletedAt: new Date() });
-//       res.status(200).send({ status: true, msg: "deleted", data: deleteBlog });
+      let deleteBlog = await BlogModel.updateMany(searchFilter, { isDeleted: true, deletedAt: new Date() });
+      res.status(200).send({ status: true, msg: "deleted", data: deleteBlog });
   
-//     } catch (error) {
-//       res.status(400).send({ status: false, msg: error.message });
-//     }
-//   }
+    } catch (error) {
+      res.status(400).send({ status: false, msg: error.message });
+    }
+  }
   
 
 module.exports.createBlogs=createBlogs
