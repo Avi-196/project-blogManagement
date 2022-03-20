@@ -10,6 +10,9 @@ const createBlogs=async function(req,res){
 
      let authorId=data.authorId
      let authorReq=await authorModel.findById(authorId)
+     if(req.user!=authorId){
+        return res.status(400).send({msg:"you are not authorized"})
+    }
      if(authorReq){
 
     let BlogsCreated=await BlogModel.create(data)
@@ -50,7 +53,7 @@ const getBlogs=async function(req,res){
          }
          res.status(200).send({data:array,status:true})
      }else{
-         res.status(200).send({status:false,msg:"this blog is not avilable"})
+         res.status(400).send({status:false,msg:"this blog is not avilable"})
      }
 
     }
@@ -123,47 +126,6 @@ const BlogDeleted = async function (req, res) {
 
 }
 
-// const deleteByQuery = async function (req, res)  {
-//     try {
-//       const data = req.query;
-//       const fetchData = await BlogModel.find(data);
-    
-  
-//       console.log(fetchData.authorId)
-//       console.log(data.authorId)
-  
-//       if(req.user!=data.authorId){
-//         return res.status(400).send("You are not authorized")
-//       }
-//       if (!fetchData.length) {
-//         return res.status(404).send({
-//           status: false,
-//           msg: "Blog not found!",
-//         });
-//       }
-//       for (let i = 0; i < fetchData.length; i++) {
-//         if (!fetchData[i].isDeleted) {
-//           const dataRes = await BlogModel.updateMany(data, { isDeleted: true });
-//           res.status(200).send({ status: true, msg: dataRes });
-//         }
-//         return res.status(404).send({
-//           status: false,
-//           msg: "Blog not found !",
-//         });
-//       }
-//     } catch (error) {
-//       return res.status(500).send({
-//         "Error: ": error.message,
-//       });
-//     }
-//   };
-
-
-
-
-
-
-
 
 
 
@@ -175,7 +137,7 @@ const deleteByQuery = async function (req, res) {
   
      
   
-      let searchFilter = { authorId: req.body.decodetoken }
+      let searchFilter = { authorId: req.user.decodetoken }
       console.log(searchFilter)
   
       if (req.query.authorId) {
@@ -199,7 +161,7 @@ const deleteByQuery = async function (req, res) {
         res.status(400).send({ status: false, msg: "you are not authorised" });
       }
   
-      let deleteBlog = await BlogModel.updateMany(searchFilter, { isDeleted: true, deletedAt: new Date() });
+      let deleteBlog = await BlogModel.updateMany( {$or: [{ authorId: req.query.authorId }, { tags: req.query.tags }, { category: req.query.category }, { subcategory: req.query.subcategory }]}, { isDeleted: true, deletedAt: new Date() });
       res.status(200).send({ status: true, msg: "deleted", data: deleteBlog });
   
     } catch (error) {

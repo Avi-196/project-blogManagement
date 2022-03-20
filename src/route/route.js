@@ -6,7 +6,7 @@ const blogController=require("../controllers/blogController")
 const middleWare=require("../middleWare/middleWare")
 
 router.post('/createAuthors',authorController.createAuthors)
-router.post('/createBlogs',blogController.createBlogs)
+router.post('/createBlogs',middleWare.authentic,blogController.createBlogs)
 router.get('/getBlogs',middleWare.authentic,blogController.getBlogs)
 router.put('/updatedBlog/:blogId',middleWare.authentic,blogController.updatedBlog)
 router.delete('/blogDeleted/:blogId',middleWare.authentic,blogController.BlogDeleted)
