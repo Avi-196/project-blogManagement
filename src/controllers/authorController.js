@@ -4,7 +4,6 @@ const BlogModel=require("../models/blogsModel")
 const jwt = require("jsonwebtoken")
 
 let createAuthors=async function(req,res){
-
     try{
         let data=req.body
         if(!data.firstname){
@@ -30,18 +29,13 @@ let createAuthors=async function(req,res){
         let uniquePassword=await authorModel.findOne({password:data.password})
         if(uniquePassword){
             return res.status(406).send({msg:"this password already taken"})
-        }
-
-        
+        }     
         let createAuthor=await authorModel.create(data)
         res.status(201).send({data:createAuthor,status:true})
-
     }
     catch(err){
         res.status(500).send({msg:err.message})
     }
-
-
 }
 
 let authorLogin=async function (req,res){
@@ -63,9 +57,6 @@ let authorLogin=async function (req,res){
         );
         res.header('x-api-key',tokenGen)
         res.status(201).send({data:tokenGen,status:true})
-
-
-
     }
     catch(err){
         res.status(500).send({msg:err.messgage})

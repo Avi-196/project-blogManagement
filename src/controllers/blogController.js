@@ -1,5 +1,5 @@
 const authorModel = require("../models/authorModel")
-const BlogModel=require("../models/blogsModel")
+const blogModel=require("../models/blogsModel")
 
 const createBlogs=async function(req,res){
     try{
@@ -15,34 +15,27 @@ const createBlogs=async function(req,res){
     }
      if(authorReq){
 
-    let BlogsCreated=await BlogModel.create(data)
+    let BlogsCreated=await blogModel.create(data)
     res.status(201).send({data:BlogsCreated,status:true})
 
 }else{
-
     res.status(400).send({msg:"please enter the right authorId",status:false})
 
 }
-
-
-
     }
     catch(err){
         res.status(500).send({msg:err.message})
     }
-
-
 }
 
 const getBlogs=async function(req,res){
-
+  
     try{
-        
      let authorId=req.query.authorId
      let category=req.query.category
      let tags=req.query.tags
      let subcategory=req.query.subcategory
-     let blogs=await BlogModel.find({$or:[{authorId:authorId},{category:category},{tags:tags},{subcategory:subcategory}]})
+     let blogs=await blogModel.find({$or:[{authorId:authorId},{category:category},{tags:tags},{subcategory:subcategory}]})
      let array=[]
      if(blogs.length>0){
          for(let element of blogs){
@@ -55,7 +48,6 @@ const getBlogs=async function(req,res){
      }else{
          res.status(400).send({status:false,msg:"this blog is not avilable"})
      }
-
     }
      catch(err){
          res.status(500).send({msg:err.message,status:false})
@@ -64,12 +56,10 @@ const getBlogs=async function(req,res){
 }
 
 const updatedBlog = async function (req, res) {
-
     try {
-        const id = req.params.blogId;
-        
+        const id = req.params.blogId;     
         const data = req.body;
-        const fetchData = await BlogModel.findById(id);
+        const fetchData = await blogModel.findById(id);
       let authId=fetchData.authorId
       console.log(authId,req.user)
       if(req.user!=authId){
@@ -79,7 +69,7 @@ const updatedBlog = async function (req, res) {
         
         data.publishedAt = new Date();
         data.isPublished = true
-        const dataRes = await BlogModel.findByIdAndUpdate(id, data, {
+        const dataRes = await blogModel.findByIdAndUpdate(id, data, {
             new: true
         });
         return res.status(200).send({
@@ -98,19 +88,18 @@ const updatedBlog = async function (req, res) {
 }
 
 
-const BlogDeleted = async function (req, res) {
+const blogDeleted = async function (req, res) {
     try {
         let id = req.params.blogId
-        let data = await BlogModel.findById(id)
+        let data = await blogModel.findById(id)
         let bgId=data.authorId
         console.log(bgId,req.user)
         if(req.user!=bgId){
             return res.status(401).send({msg:"you are not authorized"})
-        }
-        
+        }      
         if (data) {
             if (data.isDeleted == false) {
-                 let data2 = await BlogModel.findOneAndUpdate({ _id: id }, { isDeleted: true, deletedAt:new Date() }, { new: true })
+                 let data2 = await blogModel.findOneAndUpdate({ _id: id }, { isDeleted: true, deletedAt:new Date() }, { new: true })
              return   res.status(200).send({ status: true, msg: data2 })
             } else {
               return  res.status(200).send({ status: false, msg: "data already deleted" })
@@ -118,14 +107,10 @@ const BlogDeleted = async function (req, res) {
         } else {
           return  res.status(404).send({ status: false, msg: "id does not exist" })
         }
-
     }
     catch (err) { 
       return res.status(500).send({status:false, message:err.message }) }
-
 }
-
-
 
 
 const deleteByQuery = async function (req, res) {
@@ -147,7 +132,7 @@ const deleteByQuery = async function (req, res) {
           obj.isPublished = req.query.isPublished;
         }
         obj.authorId = req.userId
-        let data = await BlogModel.findOne(obj);
+        let data = await blogModel.findOne(obj);
         if (!data) {
           return res.status(404).send({ status: false, message: "data not found" });
         }
@@ -172,5 +157,5 @@ const deleteByQuery = async function (req, res) {
 module.exports.createBlogs=createBlogs
 module.exports.getBlogs=getBlogs
 module.exports.updatedBlog=updatedBlog
-module.exports.BlogDeleted=BlogDeleted
+module.exports.blogDeleted=blogDeleted
 module.exports.deleteByQuery=deleteByQuery
