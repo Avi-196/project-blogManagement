@@ -5,13 +5,13 @@ const createBlogs=async function(req,res){
     try{
     let data=req.body
     if(data.isPublished==true){
-        data["PublishedAt"]=new Date()
+        data.PublishedAt=new Date()
     }
 
      let authorId=data.authorId
      let authorReq=await authorModel.findById(authorId)
      if(req.user!=authorId){
-        return res.status(400).send({msg:"you are not authorized"})
+        return res.status(401).send({msg:"you are not authorized"})
     }
      if(authorReq){
 
@@ -20,7 +20,7 @@ const createBlogs=async function(req,res){
 
 }else{
 
-    res.status(400).send({msg:`${authorId}is not avilable,please enter the valid authorId`,status:false})
+    res.status(400).send({msg:"please enter the right authorId",status:false})
 
 }
 
@@ -37,13 +37,13 @@ const createBlogs=async function(req,res){
 const getBlogs=async function(req,res){
 
     try{
-        let array=[]
+        
      let authorId=req.query.authorId
      let category=req.query.category
      let tags=req.query.tags
      let subcategory=req.query.subcategory
      let blogs=await BlogModel.find({$or:[{authorId:authorId},{category:category},{tags:tags},{subcategory:subcategory}]})
-      
+     let array=[]
      if(blogs.length>0){
          for(let element of blogs){
              if (element.isDeleted===false && element.isPublished===true){
@@ -73,7 +73,7 @@ const updatedBlog = async function (req, res) {
       let authId=fetchData.authorId
       console.log(authId,req.user)
       if(req.user!=authId){
-          return res.status(400).send({msg:"you are not authorized"})
+          return res.status(401).send({msg:"you are not authorized"})
       }
         if (fetchData.isPublished) {
         
@@ -89,13 +89,11 @@ const updatedBlog = async function (req, res) {
     }
       return res.status(404).send({
              status: false,
-             Error: 'Blog Not Found !'
+             message: "blog not found"
          });
         }
     catch (error) {
-        return res.status(500).send({
-            Error: error.message
-        });
+        return res.status(500).send({ message: error.message });
     }
 }
 
@@ -107,22 +105,23 @@ const BlogDeleted = async function (req, res) {
         let bgId=data.authorId
         console.log(bgId,req.user)
         if(req.user!=bgId){
-            return res.status(400).send({msg:"you are not authorized"})
+            return res.status(401).send({msg:"you are not authorized"})
         }
         
         if (data) {
             if (data.isDeleted == false) {
                  let data2 = await BlogModel.findOneAndUpdate({ _id: id }, { isDeleted: true, deletedAt:new Date() }, { new: true })
-                res.status(200).send({ status: true, msg: data2 })
+             return   res.status(200).send({ status: true, msg: data2 })
             } else {
-                res.status(200).send({ status: false, msg: "data already deleted" })
+              return  res.status(200).send({ status: false, msg: "data already deleted" })
             }
         } else {
-            res.status(404).send({ status: false, msg: "id does not exist" })
+          return  res.status(404).send({ status: false, msg: "id does not exist" })
         }
 
     }
-    catch (err) { res.status(500).send({status:false, message:err.message }) }
+    catch (err) { 
+      return res.status(500).send({status:false, message:err.message }) }
 
 }
 
@@ -131,43 +130,43 @@ const BlogDeleted = async function (req, res) {
 
 const deleteByQuery = async function (req, res) {
     try {
-      if (Object.keys(req.query).length === 0) {
-        return res.status(400).send({ status: false, msg: 'give right condition' });
+        let obj = {};
+        if (req.query.category) {
+          obj.category = req.query.category;
+        }
+        if (req.query.authorId) {
+          obj.authorId = req.query.authorId;
+        }
+        if (req.query.tag) {
+          obj.tags = req.query.tags;
+        }
+        if (req.query.subcategory) {
+          obj.subcategory = req.query.subcategory;
+        }
+        if (req.query.published) {
+          obj.isPublished = req.query.isPublished;
+        }
+        obj.authorId = req.userId
+        let data = await BlogModel.findOne(obj);
+        if (!data) {
+          return res.status(404).send({ status: false, message: "data not found" });
+        }
+       if(req.userId !==data.authorId){
+         return res.status(401).send({status:false,msg:"you are not authorized"})
+       }
+
+          if (data.isDeleted == false) {     
+            data.isDeleted = true;
+            data.deletedAt = Date();
+            data.save();
+           return res.status(200).send({ status: true, data: data });
+          } else {
+           return res.status(400).send({ status: false, message: "This blog is already deleted" });
+          }
+      } catch (error) {
+        return res.status(500).send({ message: err.message });
       }
-  
-     
-  
-      let searchFilter = { authorId: req.user.decodetoken }
-      console.log(searchFilter)
-  
-      if (req.query.authorId) {
-        searchFilter.authorId = req.query.authorId
-      }
-  
-      if (req.query.tags) {
-        searchFilter.tags = req.query.tags
-      }
-  
-      if (req.query.subcategory) {
-        searchFilter.subcategory = req.query.subcategory
-      }
-  
-      if (req.query.isPublished) {
-        searchFilter.isPublished = req.query.isPublished
-      }
-  
-      let check = await BlogModel.find(searchFilter);
-      if (!check) {
-        res.status(400).send({ status: false, msg: "you are not authorised" });
-      }
-  
-      let deleteBlog = await BlogModel.updateMany( {$or: [{ authorId: req.query.authorId }, { tags: req.query.tags }, { category: req.query.category }, { subcategory: req.query.subcategory }]}, { isDeleted: true, deletedAt: new Date() });
-      res.status(200).send({ status: true, msg: "deleted", data: deleteBlog });
-  
-    } catch (error) {
-      res.status(400).send({ status: false, msg: error.message });
     }
-  }
   
 
 module.exports.createBlogs=createBlogs

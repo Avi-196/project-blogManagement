@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken')
-const middleWare = require("../middleWare/middleware")
+
 
 const authentic = function (req, res, next) {
     try {
