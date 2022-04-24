@@ -18,12 +18,17 @@ const createAuthors=async function(req,res){
         if(!data.email){
             return res.status(400).send({status:false,msg:"please provide the email"})
         }
+        if (!(/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(email))) {
+           return res.status(404).send({ status: false, msg: "Invalid Email" })
+            
+        }
+
         if(!data.password){
             return res.status(400).send({status:false,msg:"please provide the password"})
         }
-        let Email=await authorModel.findOne({email:data.email})
+        let email=await authorModel.findOne({email:data.email})
 
-        if(Email){
+        if(email){
             return res.status(406).send({msg:"this email is already taken not acceptable"})
         }
         let uniquePassword=await authorModel.findOne({password:data.password})
@@ -46,6 +51,11 @@ const authorLogin=async function (req,res){
         if(!author){
             return res.status(400).send({msg:"author not available",status:true})
         }
+        if (!(/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(email))) {
+          return  res.status(404).send({ status: false, msg: "Invalid Email" })
+         
+        }
+
         let tokenGen=jwt.sign(
             {
             authorId:author._id.toString(),
