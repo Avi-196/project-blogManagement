@@ -1,9 +1,9 @@
 
 const authorModel=require("../models/authorModel")
-const BlogModel=require("../models/blogsModel")
+
 const jwt = require("jsonwebtoken")
 
-let createAuthors=async function(req,res){
+const createAuthors=async function(req,res){
     try{
         let data=req.body
         if(!data.firstname){
@@ -38,7 +38,7 @@ let createAuthors=async function(req,res){
     }
 }
 
-let authorLogin=async function (req,res){
+const authorLogin=async function (req,res){
     try{
         let email=req.body.email
         let password=req.body.password

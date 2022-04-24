@@ -7,20 +7,16 @@ const createBlogs=async function(req,res){
     if(data.isPublished==true){
         data.PublishedAt=new Date()
     }
-
      let authorId=data.authorId
      let authorReq=await authorModel.findById(authorId)
      if(req.user!=authorId){
         return res.status(401).send({msg:"you are not authorized"})
     }
      if(authorReq){
-
     let BlogsCreated=await blogModel.create(data)
     res.status(201).send({data:BlogsCreated,status:true})
-
 }else{
     res.status(400).send({msg:"please enter the right authorId",status:false})
-
 }
     }
     catch(err){
@@ -29,7 +25,7 @@ const createBlogs=async function(req,res){
 }
 
 const getBlogs=async function(req,res){
-  
+
     try{
      let authorId=req.query.authorId
      let category=req.query.category
