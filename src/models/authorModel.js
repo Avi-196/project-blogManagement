@@ -15,10 +15,9 @@ const authorSchema = new mongoose.Schema({
         lowercase: true,
         required: 'email address is required',     
     },
-    password: {
-        type: String,
-        unique: true,
-        required: true
+    password:{
+        required:true,
+        type:String
     }
 
 }, { timestamps: true });
